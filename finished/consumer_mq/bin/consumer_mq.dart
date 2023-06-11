@@ -1,6 +1,9 @@
 import "package:dart_amqp/dart_amqp.dart";
 import 'dart:io';
 
+final host = Platform.environment['RABBITMQ_HOST'] ?? 'localhost';
+final port = int.tryParse(Platform.environment['RABBITMQ_PORT'] ?? '') ?? 5672;
+
 void main(List<String> arguments) {
   print('Starting listening queue');
   try {
@@ -11,19 +14,11 @@ void main(List<String> arguments) {
 }
 
 void listenQueue() async {
-  final host = Platform.environment['RABBITMQ_HOST'] ?? 'localhost';
-  final port =
-      int.tryParse(Platform.environment['RABBITMQ_PORT'] ?? '') ?? 5672;
+  final client = Client(settings: ConnectionSettings(host: host, port: port));
 
-  Client client = Client(
-      settings: ConnectionSettings(
-    host: host,
-    port: port,
-  ));
-
-  Channel channel = await client.channel();
-  Queue queue = await channel.queue("negarzoncQueue");
-  Consumer consumer = await queue.consume();
+  final channel = await client.channel();
+  final queue = await channel.queue("negarzoncQueue");
+  final consumer = await queue.consume();
   consumer.listen((AmqpMessage message) {
     // Get the payload as a string
     print(" [x] Received string: ${message.payloadAsString}");

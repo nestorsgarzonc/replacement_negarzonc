@@ -3,6 +3,7 @@
 ```bash
 npm init --y
 ```
+npm install amqplib
 
 # Run in your host using
 
